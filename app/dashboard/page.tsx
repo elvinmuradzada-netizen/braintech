@@ -72,7 +72,7 @@ export default async function DashboardPage() {
               <p className="text-3xl font-bold text-blue-900 mt-2">{examCount}</p>
             </div>
             <div className="bg-green-50 p-6 rounded-xl">
-              <p className="text-sm text-green-600 font-medium">Nəticələr</p>
+              <p className="text-sm text-indigo-600 font-medium">Nəticələr</p>
               <p className="text-3xl font-bold text-green-900 mt-2">{attemptCount}</p>
             </div>
             <div className="bg-purple-50 p-6 rounded-xl">

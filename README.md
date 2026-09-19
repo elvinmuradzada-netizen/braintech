@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🧠 BrainTech
 
-## Getting Started
+**1-9-cu sinif şagirdləri üçün onlayn təhsil platforması**
 
-First, run the development server:
+BrainTech — şagirdlər, müəllimlər və valideynlər üçün nəzərdə tutulmuş müasir onlayn imtahan və bilik yarışları platformasıdır.
 
-```bash
+## ✨ Xüsusiyyətlər
+
+- 🎓 Şagird Paneli — onlayn imtahanlar, nəticələr, statistika
+- 👨‍🏫 Müəllim Paneli — imtahan yaratma, sual əlavə etmə, nəticələrin izlənməsi
+- 📊 Statistika — fərdi və sinif üzrə analitika
+- 🏆 Bilik yarışları — rəqabətli öyrənmə
+- 🎯 3 sual tipi — çoxseçimli, doğru/yanlış, boşluq doldur
+- ⏱ Vaxt sayğacı — real imtahan təcrübəsi
+- 🔐 Rol əsaslı giriş — şagird, müəllim, valideyn, admin
+
+## 🛠 Texnologiya Yığını
+
+- Frontend: Next.js 16 (App Router) + React 19 + Tailwind CSS 4
+- Backend / Baza: Supabase (PostgreSQL, Auth, Storage)
+- Autentifikasiya: Supabase Auth
+- Dil: TypeScript
+- Dev mühiti: Turbopack + Supabase CLI (Docker)
+
+## 🚀 Quraşdırma
+
+Tələblər: Node.js 20+, Docker, npm
+
+git clone https://github.com/USERNAME/braintech.git
+cd braintech
+npm install
+npx supabase start
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Brauzerdə aç: http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Layihə Strukturu
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+braintech/
+- app/
+  - (auth)/login, register
+  - dashboard/exams/[id]/edit, results, take
+  - dashboard/exams/new
+- components/landing/FAQ.tsx
+- lib/auth, exams, supabase
+- public/images
+- supabase/
+- proxy.ts
 
-## Learn More
+## 🗄 Baza Sxemi
 
-To learn more about Next.js, take a look at the following resources:
+Əsas cədvəllər: profiles, subjects, topics, questions, exams, exam_questions, attempts, answers, classes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🎯 Yol Xəritəsi
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [x] Auth (login, register, logout)
+- [x] Rol idarəsi
+- [x] İmtahan yaratma və yayımlama
+- [x] Sual əlavə etmə
+- [x] İmtahan vermə
+- [x] Avtomatik qiymətləndirmə
+- [x] Müəllim nəticələr səhifəsi
+- [x] Landing page
+- [ ] Şagird statistikası (qrafiklər)
+- [ ] Valideyn paneli
+- [ ] Sertifikatlar
+- [ ] Deploy (Vercel + Supabase Cloud)
 
-## Deploy on Vercel
+## 📄 Lisenziya
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+MIT License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 👥 Müəllif
+
+BrainTech — 2026

@@ -35,7 +35,7 @@ export default function LoginPage() {
               type="email"
               name="email"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
               placeholder="example@mail.com"
             />
           </div>
@@ -49,7 +49,7 @@ export default function LoginPage() {
               name="password"
               required
               minLength={6}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
               placeholder="••••••••"
             />
           </div>
@@ -63,7 +63,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50"
           >
             {loading ? 'Daxil olunur...' : 'Daxil ol'}
           </button>
@@ -71,7 +71,7 @@ export default function LoginPage() {
 
         <p className="text-center text-gray-600 mt-6">
           Hesabın yoxdur?{' '}
-          <Link href="/register" className="text-blue-600 font-semibold hover:underline">
+          <Link href="/register" className="text-indigo-600 font-semibold hover:underline">
             Qeydiyyatdan keç
           </Link>
         </p>

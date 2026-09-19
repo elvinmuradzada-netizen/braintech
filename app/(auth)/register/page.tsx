@@ -36,7 +36,7 @@ export default function RegisterPage() {
               type="text"
               name="full_name"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
               placeholder="Elvin Məmmədov"
             />
           </div>
@@ -49,7 +49,7 @@ export default function RegisterPage() {
               type="email"
               name="email"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
               placeholder="example@mail.com"
             />
           </div>
@@ -63,7 +63,7 @@ export default function RegisterPage() {
               name="password"
               required
               minLength={6}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
               placeholder="••••••••"
             />
           </div>
@@ -76,7 +76,7 @@ export default function RegisterPage() {
               name="role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
             >
               <option value="student">Şagird</option>
               <option value="teacher">Müəllim</option>
@@ -92,7 +92,7 @@ export default function RegisterPage() {
               <select
                 name="grade_level"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
               >
                 <option value="">Sinif seç</option>
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((g) => (
@@ -113,7 +113,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50"
           >
             {loading ? 'Yaradılır...' : 'Qeydiyyatdan keç'}
           </button>
@@ -121,7 +121,7 @@ export default function RegisterPage() {
 
         <p className="text-center text-gray-600 mt-6">
           Hesabın var?{' '}
-          <Link href="/login" className="text-blue-600 font-semibold hover:underline">
+          <Link href="/login" className="text-indigo-600 font-semibold hover:underline">
             Daxil ol
           </Link>
         </p>
