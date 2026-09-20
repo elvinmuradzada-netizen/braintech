@@ -16,6 +16,8 @@ export async function createExam(formData: FormData) {
   const gradeLevel = formData.get('grade_level') as string
   const duration = formData.get('duration_minutes') as string
   const passingScore = formData.get('passing_score') as string
+  const isPaid = formData.get('is_paid') === 'true'
+  const price = formData.get('price') as string
 
   const { data, error } = await supabase
     .from('exams')
@@ -27,6 +29,8 @@ export async function createExam(formData: FormData) {
       teacher_id: user.id,
       duration_minutes: parseInt(duration) || 30,
       passing_score: parseInt(passingScore) || 60,
+      is_paid: isPaid,
+      price: isPaid ? parseFloat(price) || 0 : 0,
       is_published: false,
     })
     .select()
@@ -52,9 +56,8 @@ export async function createQuestion(formData: FormData) {
   const optionsRaw = formData.getAll('options') as string[]
   const points = formData.get('points') as string
 
-  // Variantları JSON formatına sal
   const options = optionsRaw.filter(Boolean).map((o, i) => ({
-    id: String.fromCharCode(65 + i), // A, B, C, D
+    id: String.fromCharCode(65 + i),
     text: o,
   }))
 
@@ -62,7 +65,6 @@ export async function createQuestion(formData: FormData) {
     ? JSON.stringify({ id: correctAnswer, text: options.find(o => o.id === correctAnswer)?.text })
     : JSON.stringify({ value: correctAnswer })
 
-  // 1. Sual yarat
   const { data: question, error: qErr } = await supabase
     .from('questions')
     .insert({
@@ -78,7 +80,6 @@ export async function createQuestion(formData: FormData) {
 
   if (qErr) return { error: qErr.message }
 
-  // 2. İmtahana bağla
   const { error: linkErr } = await supabase
     .from('exam_questions')
     .insert({
@@ -133,7 +134,6 @@ export async function submitExam(attemptId: string, answers: Record<string, any>
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Giriş etməmisiniz' }
 
-  // 1. Cəhdi götür
   const { data: attempt } = await supabase
     .from('attempts')
     .select('exam_id')
@@ -142,7 +142,6 @@ export async function submitExam(attemptId: string, answers: Record<string, any>
 
   if (!attempt) return { error: 'Cəhd tapılmadı' }
 
-  // 2. Sualları götür
   const { data: examQs } = await supabase
     .from('exam_questions')
     .select('question_id, points, questions(correct_answer)')
@@ -151,7 +150,6 @@ export async function submitExam(attemptId: string, answers: Record<string, any>
   let totalScore = 0
   let maxScore = 0
 
-  // 3. Cavabları yoxla
   for (const eq of examQs || []) {
     maxScore += eq.points
     const studentAnswer = answers[eq.question_id]
@@ -180,7 +178,6 @@ export async function submitExam(attemptId: string, answers: Record<string, any>
 
   const percentage = maxScore > 0 ? (totalScore / maxScore) * 100 : 0
 
-  // 4. Cəhdi yenilə
   await supabase
     .from('attempts')
     .update({

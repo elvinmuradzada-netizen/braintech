@@ -1,6 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import PayExamButton from './PayExamButton'
 
 export default async function ExamDetailPage({
   params,
@@ -25,6 +26,42 @@ export default async function ExamDetailPage({
 
   const isTeacher = exam.teacher_id === user.id
   const isStudent = profile?.role === 'student'
+
+  // ═══ ÖDƏNİŞ YOXLAMASI ═══
+  let hasPaid = true
+  let isPendingPayment = false
+
+  if (!isTeacher && isStudent && exam.is_paid) {
+    const { data: paidPayment } = await supabase
+      .from('payments')
+      .select('id, status')
+      .eq('student_id', user.id)
+      .eq('exam_id', id)
+      .eq('status', 'paid')
+      .maybeSingle()
+
+    hasPaid = !!paidPayment
+
+    // Gözləyən ödəniş var?
+    if (!hasPaid) {
+      const { data: pendingPayment } = await supabase
+        .from('payments')
+        .select('id, status, created_at')
+        .eq('student_id', user.id)
+        .eq('exam_id', id)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (pendingPayment) {
+        const created = new Date(pendingPayment.created_at).getTime()
+        const now = Date.now()
+        // Son 10 dəqiqə ərzində yaradılıbsa, gözləyir
+        isPendingPayment = (now - created) < 10 * 60 * 1000
+      }
+    }
+  }
 
   // Suallar sayı
   const { count: questionCount } = await supabase
@@ -53,7 +90,7 @@ export default async function ExamDetailPage({
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-3xl mx-auto">
-        <Link href="/dashboard/exams" className="text-blue-600 hover:underline mb-4 inline-block">
+        <Link href="/dashboard/exams" className="text-indigo-600 hover:underline mb-4 inline-block">
           ← İmtahanlar
         </Link>
 
@@ -73,6 +110,27 @@ export default async function ExamDetailPage({
             )}
           </div>
 
+          {/* ═══ ÖDƏNİŞLİ BADGE ═══ */}
+          {exam.is_paid && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">💰</span>
+                <div>
+                  <p className="text-sm font-bold text-yellow-900">Ödənişli imtahan</p>
+                  <p className="text-xs text-yellow-700">
+                    Qiymət: <strong>{exam.price} AZN</strong>
+                  </p>
+                </div>
+              </div>
+              {isStudent && hasPaid && (
+                <span className="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                  ✓ Ödənilib
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Statistikalar */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
             <div className="bg-blue-50 rounded-xl p-4">
               <p className="text-xs text-blue-600 font-medium">Fənn</p>
@@ -94,7 +152,7 @@ export default async function ExamDetailPage({
             </div>
           </div>
 
-          {/* ŞAGİRD ÜÇÜN */}
+          {/* ═══ ŞAGİRD ÜÇÜN ═══ */}
           {isStudent && (
             <div className="border-t pt-6">
               {bestAttempt && (
@@ -109,10 +167,34 @@ export default async function ExamDetailPage({
                 </div>
               )}
 
-              <Link href={`/dashboard/exams/${exam.id}/take`}
-                className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl transition text-lg">
-                {attempts.length > 0 ? '🔄 Yenidən cəhd et' : '🚀 İmtahana başla'}
-              </Link>
+              {/* ═══ ÖDƏNİŞ YOXLAMASI ═══ */}
+              {exam.is_paid && !hasPaid ? (
+                <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-6 text-center">
+                  <div className="text-5xl mb-3">🔒</div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    Bu imtahan ödənişlidir
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    İmtahana başlamaq üçün <strong className="text-indigo-600 text-lg">{exam.price} AZN</strong> ödəməlisiniz
+                  </p>
+
+                  {isPendingPayment && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-left">
+                      <p className="text-xs text-blue-800">
+                        ⏳ <strong>Ödəniş gözləyir</strong> — Payriff səhifəsindən ödənişi tamamlayın.
+                        Ödəniş təsdiqləndikdən sonra bu səhifə avtomatik yenilənəcək.
+                      </p>
+                    </div>
+                  )}
+
+                  <PayExamButton examId={exam.id} price={Number(exam.price)} />
+                </div>
+              ) : (
+                <Link href={`/dashboard/exams/${exam.id}/take`}
+                  className="block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 rounded-xl transition text-lg">
+                  {attempts.length > 0 ? '🔄 Yenidən cəhd et' : '🚀 İmtahana başla'}
+                </Link>
+              )}
 
               {attempts.length > 0 && (
                 <div className="mt-6">
@@ -140,7 +222,7 @@ export default async function ExamDetailPage({
             </div>
           )}
 
-          {/* MÜƏLLİM ÜÇÜN */}
+          {/* ═══ MÜƏLLİM ÜÇÜN ═══ */}
           {isTeacher && (
             <div className="border-t pt-6">
               <Link href={`/dashboard/exams/${exam.id}/results`}
