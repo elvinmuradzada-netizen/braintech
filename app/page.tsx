@@ -1,8 +1,25 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { redirect } from 'next/navigation'
 import FAQ from '@/components/landing/FAQ'
 
-export default function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ code?: string; error?: string; error_description?: string }>
+}) {
+  const params = await searchParams
+
+  // ═══ Supabase bərpa linki gəlibsə → /auth/callback-a yönləndir ═══
+  if (params.code) {
+    redirect(`/auth/callback?code=${params.code}&next=/reset-password`)
+  }
+
+  // Xəta varsa → login-ə yönləndir
+  if (params.error) {
+    redirect(`/login?error=${params.error}`)
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* ═══ HEADER ═══ */}
@@ -54,7 +71,7 @@ export default function HomePage() {
                 🎓 RƏQƏMSAL TƏHSİL PLATFORMASI
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
-                <span className="text-indigo-600">Brain</span>Tech
+                Brain<span className="text-indigo-600">Tech</span>
                 <br />
                 imtahan platforması
               </h1>
@@ -65,7 +82,7 @@ export default function HomePage() {
               <div className="flex flex-wrap gap-3">
                 <Link
                   href="/register"
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition shadow-lg shadow-green-600/20"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition shadow-lg shadow-indigo-600/20"
                 >
                   🚀 Pulsuz başla
                 </Link>
@@ -77,7 +94,6 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* Stats mini */}
               <div className="flex items-center gap-6 mt-8">
                 <div>
                   <div className="text-2xl font-bold text-gray-900">150K+</div>
@@ -96,7 +112,6 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Hero image */}
             <div className="relative">
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
                 <Image
@@ -109,11 +124,10 @@ export default function HomePage() {
                 />
               </div>
 
-              {/* Float decorations */}
               <div className="absolute -top-4 -left-4 bg-yellow-400 rounded-2xl p-3 shadow-lg animate-bounce">
                 <div className="text-2xl">🏆</div>
               </div>
-              <div className="absolute -bottom-4 -right-4 bg-indigo-500 rounded-2xl p-3 shadow-lg">
+              <div className="absolute -bottom-4 -right-4 bg-green-500 rounded-2xl p-3 shadow-lg">
                 <div className="text-2xl">📊</div>
               </div>
             </div>
@@ -215,7 +229,7 @@ export default function HomePage() {
               },
             ].map((p, i) => {
               const colors = {
-                green: { bg: 'bg-indigo-50', text: 'text-indigo-700', btn: 'bg-indigo-600 hover:bg-indigo-700', border: 'border-indigo-200' },
+                green: { bg: 'bg-green-50', text: 'text-green-700', btn: 'bg-green-600 hover:bg-green-700', border: 'border-green-200' },
                 blue: { bg: 'bg-blue-50', text: 'text-blue-700', btn: 'bg-blue-600 hover:bg-blue-700', border: 'border-blue-200' },
                 purple: { bg: 'bg-purple-50', text: 'text-purple-700', btn: 'bg-purple-600 hover:bg-purple-700', border: 'border-purple-200' },
               }[p.color as 'green' | 'blue' | 'purple']
@@ -273,7 +287,6 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {/* Məktəbəhazırlıq */}
             <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-2xl p-5 text-center hover:shadow-lg transition">
               <div className="flex justify-center mb-3">
                 <div className="w-24 h-24 rounded-2xl overflow-hidden bg-white shadow">
@@ -290,13 +303,12 @@ export default function HomePage() {
               <p className="text-xs text-gray-500 mb-4">5-6 yaş</p>
               <Link
                 href="/register"
-                className="block bg-indigo-600 hover:bg-indigo-700 text-white text-sm py-2 rounded-lg font-medium mb-2 transition"
+                className="block bg-green-600 hover:bg-green-700 text-white text-sm py-2 rounded-lg font-medium mb-2 transition"
               >
                 İmtahana başla
               </Link>
             </div>
 
-            {/* 1-9 sinif */}
             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((grade) => (
               <div
                 key={grade}
@@ -319,7 +331,7 @@ export default function HomePage() {
                 </p>
                 <Link
                   href="/register"
-                  className="block bg-indigo-600 hover:bg-indigo-700 text-white text-sm py-2 rounded-lg font-medium mb-2 transition"
+                  className="block bg-green-600 hover:bg-green-700 text-white text-sm py-2 rounded-lg font-medium mb-2 transition"
                 >
                   İmtahana başla
                 </Link>
@@ -403,7 +415,7 @@ export default function HomePage() {
       <FAQ />
 
       {/* ═══ CTA ═══ */}
-      <section className="py-20 bg-gradient-to-r from-indigo-600 to-blue-600 text-white">
+      <section className="py-20 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Bu gün başla! 🚀
@@ -426,7 +438,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-4 gap-8 mb-12">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold">
+                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold">
                   BT
                 </div>
                 <div>

@@ -1,130 +1,105 @@
-'use client'
-
-import { useState } from 'react'
 import Link from 'next/link'
-import { register } from '@/lib/auth/actions'
+import Image from 'next/image'
+import RegisterWizard from './RegisterWizard'
 
 export default function RegisterPage() {
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [role, setRole] = useState('student')
-
-  async function handleSubmit(formData: FormData) {
-    setLoading(true)
-    setError(null)
-    const result = await register(formData)
-    if (result?.error) {
-      setError(result.error)
-      setLoading(false)
-    }
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Qeydiyyat 🚀</h1>
-          <p className="text-gray-500 mt-2">Yeni hesab yarat</p>
+    <div className="min-h-screen grid lg:grid-cols-2">
+      {/* ═══ SOL YAŞIL PANEL ═══ */}
+      <div className="hidden lg:flex flex-col justify-between bg-gradient-to-br from-emerald-700 via-green-700 to-emerald-800 relative overflow-hidden p-10 text-white">
+        {/* Üst - Logo + Tagline */}
+        <div className="flex items-center gap-4 relative z-10">
+          <div className="flex items-center gap-2">
+            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center">
+              <div className="text-green-700 font-bold text-lg">BT</div>
+            </div>
+            <div>
+              <div className="font-bold text-lg leading-tight">BRAIN</div>
+              <div className="text-xs opacity-80 leading-tight">TECH</div>
+            </div>
+          </div>
+          <div className="bg-green-600/40 backdrop-blur border border-green-400/30 rounded-full px-4 py-2 text-sm font-medium">
+            Təməlində <span className="text-yellow-300 font-bold">sevg</span> var! 💚
+          </div>
         </div>
 
-        <form action={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ad və Soyad
-            </label>
-            <input
-              type="text"
-              name="full_name"
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-              placeholder="Elvin Məmmədov"
-            />
+        {/* Orta - Başlıq */}
+        <div className="relative z-10 flex-1 flex flex-col justify-center max-w-lg">
+          <h1 className="text-4xl xl:text-5xl font-bold leading-tight mb-4">
+            Biliyin kök salıb
+            <br />
+            <span className="text-yellow-300">böyüdüyü</span> yer
+          </h1>
+          <p className="text-green-100 text-base leading-relaxed mb-8">
+            Onlayn imtahanlar, canlı monitorinq və inkişaf analitikası — şagirdlər,
+            müəllimlər və məktəblər üçün vahid rəqəmsal məkanda.
+          </p>
+
+          {/* Statlar */}
+          <div className="grid grid-cols-3 gap-6">
+            {[
+              { icon: '👥', value: '150 000+', label: 'Şagird' },
+              { icon: '🎓', value: '5 000+', label: 'Müəllim' },
+              { icon: '🏫', value: '300+', label: 'Məktəb' },
+            ].map((s, i) => (
+              <div key={i} className="flex flex-col items-start">
+                <div className="w-12 h-12 rounded-full bg-green-600/50 backdrop-blur border border-green-400/30 flex items-center justify-center text-2xl mb-3">
+                  {s.icon}
+                </div>
+                <div className="text-2xl font-bold">{s.value}</div>
+                <div className="text-xs opacity-80">{s.label}</div>
+              </div>
+            ))}
           </div>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              E-poçt
-            </label>
-            <input
-              type="email"
-              name="email"
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-              placeholder="example@mail.com"
-            />
-          </div>
+        {/* Ağac şəkli - şəffaf PNG */}
+        <div className="absolute right-0 bottom-0 w-[520px] h-[520px] pointer-events-none">
+          <Image
+            src="/images/register-tree.png"
+            alt="Bilik ağacı"
+            width={650}
+            height={650}
+            className="object-contain"
+            priority
+          />
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Şifrə (min 6 simvol)
-            </label>
-            <input
-              type="password"
-              name="password"
-              required
-              minLength={6}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-              placeholder="••••••••"
-            />
-          </div>
+        {/* Alt - Dekorativ nöqtələr */}
+        <div className="absolute bottom-6 left-6 grid grid-cols-6 gap-2 opacity-20 z-10">
+          {Array.from({ length: 36 }).map((_, i) => (
+            <div key={i} className="w-1 h-1 rounded-full bg-white"></div>
+          ))}
+        </div>
+      </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Rol
-            </label>
-            <select
-              name="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
-            >
-              <option value="student">Şagird</option>
-              <option value="teacher">Müəllim</option>
-              <option value="parent">Valideyn</option>
-            </select>
-          </div>
-
-          {role === 'student' && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Sinif
-              </label>
-              <select
-                name="grade_level"
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
-              >
-                <option value="">Sinif seç</option>
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((g) => (
-                  <option key={g} value={g}>
-                    {g}-ci sinif
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50"
+      {/* ═══ SAĞ AĞ PANEL ═══ */}
+      <div className="flex flex-col bg-white overflow-y-auto">
+        {/* Üst - Ana səhifə linki */}
+        <div className="flex justify-between items-center p-6 border-b border-gray-100">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition"
           >
-            {loading ? 'Yaradılır...' : 'Qeydiyyatdan keç'}
-          </button>
-        </form>
-
-        <p className="text-center text-gray-600 mt-6">
-          Hesabın var?{' '}
-          <Link href="/login" className="text-indigo-600 font-semibold hover:underline">
-            Daxil ol
+            <span className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+              ←
+            </span>
+            <span className="font-medium">Ana səhifə</span>
           </Link>
-        </p>
+          <Link
+            href="/login"
+            className="text-sm text-green-600 hover:text-green-700 font-medium"
+          >
+            Daxil ol →
+          </Link>
+        </div>
+
+        {/* Wizard */}
+        <div className="flex-1 p-6 md:p-10">
+          <div className="max-w-xl mx-auto">
+            <RegisterWizard />
+          </div>
+        </div>
       </div>
     </div>
   )
