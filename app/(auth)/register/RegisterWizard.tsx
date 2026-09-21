@@ -430,7 +430,7 @@ export default function RegisterWizard() {
 
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Müəllim üçün qeydiyyat</h1>
-          <p className="text-xs text-gray-500">Məlumatları Azərbaycan əlifbası ilə düzgün qeyd edin. Hesabınız yoxlanışdan sonra aktiv ediləcək.</p>
+          <p className="text-xs text-gray-500">Məlumatları Azərbaycan əlifbası ilə düzgün qeyd edin.</p>
         </div>
 
         <form
@@ -447,6 +447,7 @@ export default function RegisterWizard() {
             fd.set('full_name', `${teacherData.last_name} ${teacherData.first_name} ${teacherData.father_name}`)
             fd.set('role', role)
             fd.set('grade_level', teacherData.grade_level)
+            fd.set('class_index', teacherData.class_index)
             fd.set('institution_name', teacherData.institution_name)
             fd.set('city_id', teacherData.city_id)
             fd.set('district_id', teacherData.district_id)
@@ -517,7 +518,7 @@ export default function RegisterWizard() {
             </div>
           )}
 
-          {/* Məktəb / Müəssisə */}
+          {/* Məktəb */}
           {formProgress >= 5 && (
             <div>
               <label className="text-[10px] font-bold text-gray-700 mb-1 block uppercase tracking-wider">MƏKTƏB / MÜƏSSİSƏ *</label>
@@ -613,7 +614,7 @@ export default function RegisterWizard() {
             🏫 MƏKTƏB DİREKTORU
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Direktor üçün qeydiyyat</h1>
-          <p className="text-xs text-gray-500">Məktəb rəhbəri kimi qeydiyyatdan keçin. Məlumatlar yoxlanışdan sonra aktiv ediləcək.</p>
+          <p className="text-xs text-gray-500">Məktəb rəhbəri kimi qeydiyyatdan keçin.</p>
         </div>
 
         <form
@@ -764,6 +765,7 @@ export default function RegisterWizard() {
       fd.set('full_name', `${formData.last_name} ${formData.first_name} ${formData.father_name}`)
       fd.set('role', role)
       fd.set('grade_level', formData.grade_level)
+      fd.set('class_index', formData.class_index)
       fd.set('city_id', formData.city_id)
       fd.set('district_id', formData.district_id)
       fd.set('school_id', formData.school_id)

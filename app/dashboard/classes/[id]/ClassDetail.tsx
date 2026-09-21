@@ -4,6 +4,15 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
+// Sinif adından hərf indeksini tap: "5A Riyaziyyat" → "a"
+function extractClassIndex(className: string): string | null {
+  const match = className.match(/(\d+)\s*([a-zA-Z])/i)
+  if (match && match[2]) {
+    return match[2].toLowerCase()
+  }
+  return null
+}
+
 export default function ClassDetail({
   cls,
   classStudents,
@@ -25,7 +34,10 @@ export default function ClassDetail({
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [searching, setSearching] = useState(false)
 
-  // ═══ ŞAGİRD AXTAR — YALNIZ HƏMİN MƏKTƏBDƏN ═══
+  // Sinif indeksi (məsələn "5A Riyaziyyat" → "a")
+  const classIndex = extractClassIndex(cls.name)
+
+  // ═══ ŞAGİRD AXTAR — MƏKTƏB + SİNİF + İNDEKS ═══
   async function searchStudents() {
     if (!searchName.trim()) return
     setSearching(true)
@@ -33,14 +45,18 @@ export default function ClassDetail({
 
     let query = supabase
       .from('profiles')
-      .select('id, full_name, grade_level, role, school_id')
+      .select('id, full_name, grade_level, class_index, role, school_id')
       .eq('role', 'student')
       .ilike('full_name', `%${searchName}%`)
+      .eq('grade_level', cls.grade_level)
       .limit(15)
 
-    // Yalnız həmin məktəbin şagirdləri
     if (cls.school_id) {
       query = query.eq('school_id', cls.school_id)
+    }
+
+    if (classIndex) {
+      query = query.or(`class_index.eq.${classIndex},class_index.is.null`)
     }
 
     const { data, error } = await query
@@ -74,10 +90,9 @@ export default function ClassDetail({
       return
     }
 
-    // Yeni şagirdi gətir
     const { data: newStudent } = await supabase
       .from('profiles')
-      .select('id, full_name, grade_level')
+      .select('id, full_name, grade_level, class_index')
       .eq('id', studentId)
       .single()
 
@@ -154,13 +169,7 @@ export default function ClassDetail({
         <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
           <p className="text-5xl mb-4">👨‍🎓</p>
           <h3 className="text-lg font-bold text-gray-900 mb-2">Sinifdə şagird yoxdur</h3>
-          <p className="text-gray-500 mb-4">Şagird əlavə etmək üçün düyməyə basın</p>
-          <button
-            onClick={() => setShowModal(true)}
-            className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold transition"
-          >
-            ➕ Şagird əlavə et
-          </button>
+          <p className="text-gray-500">Yuxarıdaki "Şagird əlavə et" düyməsinə basın</p>
         </div>
       ) : (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -178,6 +187,7 @@ export default function ClassDetail({
                       <p className="font-bold text-gray-900">{prof?.full_name}</p>
                       <p className="text-xs text-gray-500">
                         {prof?.grade_level ? `${prof.grade_level}-ci sinif` : '—'}
+                        {prof?.class_index && ` - ${prof.class_index}`}
                       </p>
                     </div>
                   </div>
@@ -213,15 +223,17 @@ export default function ClassDetail({
               </button>
             </div>
 
-            {/* Məktəb məlumatı */}
-            {cls.schools?.name && (
-              <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 mb-4 flex items-center gap-2">
-                <span className="text-sm">🏫</span>
-                <p className="text-xs text-indigo-800">
-                  <strong>Yalnız</strong> {cls.schools.name} şagirdləri göstərilir
+            {/* Filter info */}
+            <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 mb-4 flex items-start gap-2">
+              <span className="text-sm">🔍</span>
+              <div className="text-xs text-indigo-800">
+                <p><strong>Yalnız</strong> bu sinfə uyğun şagirdlər göstərilir:</p>
+                <p className="mt-1">
+                  🏫 {cls.schools?.name || '—'} <br />
+                  🎓 {cls.grade_level}-ci sinif {classIndex && `- ${classIndex}`}
                 </p>
               </div>
-            )}
+            </div>
 
             {/* Axtarış */}
             <div className="mb-4">
@@ -250,9 +262,17 @@ export default function ClassDetail({
             {/* Nəticələr */}
             <div className="flex-1 overflow-y-auto min-h-[200px]">
               {searchResults.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-8">
-                  {searchName ? 'Şagird tapılmadı' : 'Ad yazın və axtarın'}
-                </p>
+                <div className="text-center py-8">
+                  <p className="text-3xl mb-2">🔍</p>
+                  <p className="text-sm text-gray-400 font-medium">
+                    {searchName ? 'Uyğun şagird tapılmadı' : 'Ad yazın və axtarın'}
+                  </p>
+                  {searchName && (
+                    <p className="text-xs text-gray-400 mt-2 px-4">
+                      Yalnız <strong>{cls.grade_level}-ci sinif</strong> şagirdləri axtarılır
+                    </p>
+                  )}
+                </div>
               ) : (
                 <div className="space-y-2">
                   {searchResults.map((s) => {
@@ -275,6 +295,7 @@ export default function ClassDetail({
                           <p className="text-sm font-bold text-gray-900">{s.full_name}</p>
                           <p className="text-xs text-gray-500">
                             {s.grade_level ? `${s.grade_level}-ci sinif` : '—'}
+                            {s.class_index && ` - ${s.class_index}`}
                           </p>
                         </div>
                         {already ? (

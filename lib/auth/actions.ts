@@ -36,6 +36,7 @@ export async function register(formData: FormData) {
   const fullName = formData.get('full_name') as string
   const role = (formData.get('role') as string) || 'student'
   const gradeLevel = formData.get('grade_level') as string
+  const classIndex = formData.get('class_index') as string
 
   // Məktəb məlumatları
   const cityId = formData.get('city_id') as string
@@ -51,6 +52,7 @@ export async function register(formData: FormData) {
         full_name: fullName,
         role: role,
         grade_level: gradeLevel || null,
+        class_index: classIndex || null,
         city_id: cityId || null,
         district_id: districtId || null,
         school_id: schoolId || null,
@@ -78,7 +80,7 @@ export async function logout() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// RESET PASSWORD — Email ilə bərpa linki göndər
+// RESET PASSWORD
 // ═══════════════════════════════════════════════════════════════
 export async function resetPassword(formData: FormData) {
   const supabase = await createClient()
@@ -103,7 +105,7 @@ export async function resetPassword(formData: FormData) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// UPDATE PASSWORD — Yeni şifrə təyin et
+// UPDATE PASSWORD
 // ═══════════════════════════════════════════════════════════════
 export async function updatePassword(formData: FormData) {
   const supabase = await createClient()

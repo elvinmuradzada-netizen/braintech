@@ -18,7 +18,7 @@ export default async function ClassDetailPage({
 
   const { data: cls } = await supabase
     .from('classes')
-    .select('*, profiles:teacher_id(full_name)')
+    .select('*, profiles:teacher_id(full_name), schools(name, districts(name))')
     .eq('id', id)
     .single()
 
@@ -32,7 +32,7 @@ export default async function ClassDetailPage({
   // Sinif şagirdləri
   const { data: classStudents } = await supabase
     .from('class_students')
-    .select('*, profiles:student_id(id, full_name, grade_level)')
+    .select('*, profiles:student_id(id, full_name, grade_level, class_index)')
     .eq('class_id', id)
 
   return (
