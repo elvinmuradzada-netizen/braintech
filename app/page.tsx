@@ -2,6 +2,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import FAQ from '@/components/landing/FAQ'
+import HeroSlider from '@/components/landing/HeroSlider'
+import HeaderNav from '@/components/landing/HeaderNav'
 
 export default async function HomePage({
   searchParams,
@@ -35,23 +37,7 @@ export default async function HomePage({
             </div>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-8">
-            {[
-              { label: 'Biz kimik', href: '#haqqimizda' },
-              { label: 'Platformalar', href: '#platformalar' },
-              { label: 'İmtahanlar', href: '#imtahanlar' },
-              { label: 'Xəbərlər', href: '#xeberler' },
-              { label: 'Əlaqə', href: '#elaqe' },
-            ].map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="text-sm font-medium text-gray-700 hover:text-indigo-600 transition"
-              >
-                {item.label}
-              </a>
-            ))}
-          </nav>
+          <HeaderNav />
 
           <Link
             href="/login"
@@ -134,6 +120,9 @@ export default async function HomePage({
           </div>
         </div>
       </section>
+
+      {/* ═══ HERO SLIDER ═══ */}
+      <HeroSlider />
 
       {/* ═══ 4 FEATURES ═══ */}
       <section className="py-20 bg-white">

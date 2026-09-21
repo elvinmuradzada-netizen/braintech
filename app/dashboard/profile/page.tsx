@@ -11,6 +11,31 @@ export default async function ProfilePage() {
   const { data: profile } = await supabase
     .from('profiles').select('*').eq('id', user.id).single()
 
+  // ═══ MƏKTƏB MƏLUMATLARI ═══
+  let schoolInfo: any = null
+  let districtInfo: any = null
+  let cityInfo: any = null
+
+  if (profile?.school_id) {
+    const { data: school } = await supabase
+      .from('schools')
+      .select('*, districts(name, city_id)')
+      .eq('id', profile.school_id)
+      .single()
+
+    schoolInfo = school
+    districtInfo = school?.districts
+
+    if (districtInfo?.city_id) {
+      const { data: city } = await supabase
+        .from('cities')
+        .select('*')
+        .eq('id', districtInfo.city_id)
+        .single()
+      cityInfo = city
+    }
+  }
+
   return (
     <div className="max-w-4xl mx-auto">
       <Link href="/dashboard" className="text-indigo-600 hover:underline mb-4 inline-block text-sm">
@@ -50,6 +75,79 @@ export default async function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* ═══ MƏKTƏB MƏLUMATI ═══ */}
+      {(cityInfo || districtInfo || schoolInfo || profile?.institution_name) && (
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-2xl p-6 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-xl bg-purple-500 flex items-center justify-center text-2xl text-white shadow-lg">
+              🏫
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-purple-700 uppercase tracking-wider">
+                {profile?.role === 'director' ? 'İdarə etdiyiniz məktəb' :
+                 profile?.role === 'teacher' ? 'İşlədiyiniz müəssisə' :
+                 'Təhsil aldığınız məktəb'}
+              </h3>
+              <p className="text-xs text-purple-600">
+                {profile?.role === 'director' ? 'Rəsmi məktəb məlumatları' : 'Qeydiyyat məlumatları'}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            {/* Şəhər */}
+            {cityInfo && (
+              <div className="bg-white rounded-xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-lg">📍</span>
+                  <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                    Şəhər
+                  </span>
+                </div>
+                <p className="font-bold text-gray-900">{cityInfo.name}</p>
+              </div>
+            )}
+
+            {/* Rayon */}
+            {districtInfo && (
+              <div className="bg-white rounded-xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-lg">🗺️</span>
+                  <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                    Rayon
+                  </span>
+                </div>
+                <p className="font-bold text-gray-900">{districtInfo.name}</p>
+              </div>
+            )}
+
+            {/* Məktəb / Müəssisə */}
+            {(schoolInfo || profile?.institution_name) && (
+              <div className="bg-white rounded-xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-lg">🏫</span>
+                  <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                    {schoolInfo ? 'Məktəb' : 'Müəssisə'}
+                  </span>
+                </div>
+                <p className="font-bold text-gray-900">
+                  {schoolInfo?.name || profile?.institution_name}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Xəbərdarlıq */}
+          <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-xl p-3 flex items-start gap-2">
+            <span className="text-yellow-600 text-sm">⚠️</span>
+            <p className="text-xs text-yellow-800">
+              Məktəb məlumatlarını dəyişmək üçün <strong>dəstək xidmətinə</strong> müraciət edin.
+              Təhlükəsizlik üçün bu məlumatlar avtomatik dəyişdirilə bilməz.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ═══ Form ═══ */}
       <ProfileForm

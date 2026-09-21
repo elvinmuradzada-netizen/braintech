@@ -24,6 +24,8 @@ export default function RegisterWizard() {
   const [schools, setSchools] = useState<any[]>([])
   const [directorDistricts, setDirectorDistricts] = useState<any[]>([])
   const [directorSchools, setDirectorSchools] = useState<any[]>([])
+  const [teacherDistricts, setTeacherDistricts] = useState<any[]>([])
+  const [teacherSchools, setTeacherSchools] = useState<any[]>([])
 
   // Şagird formu
   const [formData, setFormData] = useState({
@@ -37,9 +39,10 @@ export default function RegisterWizard() {
   const [teacherData, setTeacherData] = useState({
     first_name: '', last_name: '', father_name: '', email: '',
     gender: 'Kişi',
-    institution_type: 'Özəl (kurs, bağça, lisey, repetitor)',
+    institution_type: 'Dövlət məktəbi',
     institution_name: '', grade_level: '1', class_index: 'a',
     foreign_language: 'İngilis dili', section: 'Azərbaycan bölməsi',
+    city_id: '', district_id: '', school_id: '',
     id_card_file: null as File | null,
     password: '', confirm_password: '',
   })
@@ -73,6 +76,20 @@ export default function RegisterWizard() {
       .then(({ data }) => setSchools(data || []))
   }, [formData.district_id])
 
+  // Müəllim rayonları
+  useEffect(() => {
+    if (!teacherData.city_id) { setTeacherDistricts([]); return }
+    supabase.from('districts').select('*').eq('city_id', teacherData.city_id).order('name')
+      .then(({ data }) => setTeacherDistricts(data || []))
+  }, [teacherData.city_id])
+
+  // Müəllim məktəbləri
+  useEffect(() => {
+    if (!teacherData.district_id) { setTeacherSchools([]); return }
+    supabase.from('schools').select('*').eq('district_id', teacherData.district_id).order('name')
+      .then(({ data }) => setTeacherSchools(data || []))
+  }, [teacherData.district_id])
+
   // Direktor rayonları
   useEffect(() => {
     if (!directorData.city_id) { setDirectorDistricts([]); return }
@@ -97,7 +114,7 @@ export default function RegisterWizard() {
     setDirectorData(prev => ({ ...prev, [field]: value }))
   }
 
-  // ⚡ 2 saniyə gecikmə ilə növbəti sahəni göstər
+  // 2 saniyə gecikmə ilə növbəti sahəni göstər
   function nextStep() {
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
     timeoutRef.current = setTimeout(() => {
@@ -238,7 +255,7 @@ export default function RegisterWizard() {
   }
 
   // ═══════════════════════════════════════════════════════
-  // STEP 3: ŞAGİRD FORMU (ADDIM-ADDIM)
+  // STEP 3: ŞAGİRD FORMU (addım-addım)
   // ═══════════════════════════════════════════════════════
   if (step === 'student-form') {
     const allFilled =
@@ -279,23 +296,23 @@ export default function RegisterWizard() {
           }}
           className="space-y-4"
         >
-          {/* ─── Sahə 1: Ad, Soyad ─── */}
+          {/* Ad, Soyad */}
           <div className="grid grid-cols-2 gap-3">
             <FormField label="ŞAGİRDİN ADI *" icon="👤" value={formData.first_name} onChange={(v) => updateForm('first_name', v)} onBlur={() => formData.first_name && nextStep()} required />
             <FormField label="ŞAGİRDİN SOYADI *" icon="👤" value={formData.last_name} onChange={(v) => updateForm('last_name', v)} onBlur={() => formData.last_name && nextStep()} required />
           </div>
 
-          {/* ─── Sahə 2: Ata adı ─── */}
+          {/* Ata adı */}
           {formProgress >= 1 && (
             <FormField label="ŞAGİRDİN ATA ADI *" icon="👤" value={formData.father_name} onChange={(v) => updateForm('father_name', v)} onBlur={() => formData.father_name && nextStep()} required />
           )}
 
-          {/* ─── Sahə 3: Email ─── */}
+          {/* Email */}
           {formProgress >= 2 && (
             <FormField label="EMAIL *" icon="✉️" type="email" value={formData.email} onChange={(v) => updateForm('email', v)} onBlur={() => formData.email && nextStep()} hint="Şifrəni unutduğunuz təqdirdə bu emaildən istifadə edərək hesabınıza bərpa edə biləcəksiniz." required />
           )}
 
-          {/* ─── Sahə 4: Cins + Bölmə ─── */}
+          {/* Cins, Bölmə */}
           {formProgress >= 3 && (
             <>
               <SelectField label="CİNS *" value={formData.gender} onChange={(v) => { updateForm('gender', v); nextStep() }} options={['Oğlan', 'Qız']} />
@@ -303,7 +320,7 @@ export default function RegisterWizard() {
             </>
           )}
 
-          {/* ─── Sahə 5: Sinif + İndeks ─── */}
+          {/* Sinif, İndeks */}
           {formProgress >= 4 && (
             <div className="grid grid-cols-2 gap-3">
               <SelectField label="SİNİF *" value={formData.grade_level} onChange={(v) => { updateForm('grade_level', v); nextStep() }} options={['1', '2', '3', '4', '5', '6', '7', '8', '9']} display={(v) => `${v}-ci sinif`} />
@@ -311,7 +328,7 @@ export default function RegisterWizard() {
             </div>
           )}
 
-          {/* ─── Sahə 6: Şəhər + Rayon ─── */}
+          {/* Şəhər, Rayon */}
           {formProgress >= 5 && (
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -342,7 +359,7 @@ export default function RegisterWizard() {
             </div>
           )}
 
-          {/* ─── Sahə 7: Məktəb + Xarici dil ─── */}
+          {/* Məktəb, Xarici dil */}
           {formProgress >= 6 && (
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -361,12 +378,12 @@ export default function RegisterWizard() {
             </div>
           )}
 
-          {/* ─── Sahə 8: Sinif rəhbəri ─── */}
+          {/* Sinif rəhbəri */}
           {formProgress >= 7 && (
             <FormField label="SİNİF RƏHBƏRİNİN ADI VƏ SOYADI *" icon="👤" value={formData.class_teacher} onChange={(v) => updateForm('class_teacher', v)} onBlur={() => formData.class_teacher && nextStep()} required />
           )}
 
-          {/* ─── Sahə 9: Şifrə ─── */}
+          {/* Şifrə */}
           {formProgress >= 8 && (
             <>
               <div className="grid grid-cols-2 gap-3">
@@ -395,13 +412,13 @@ export default function RegisterWizard() {
   }
 
   // ═══════════════════════════════════════════════════════
-  // STEP 4: MÜƏLLİM FORMU (ADDIM-ADDIM)
+  // STEP 4: MÜƏLLİM FORMU (addım-addım)
   // ═══════════════════════════════════════════════════════
   if (step === 'teacher-form') {
     const allFilled =
       teacherData.first_name && teacherData.last_name && teacherData.father_name &&
-      teacherData.email && teacherData.institution_name &&
-      teacherData.id_card_file &&
+      teacherData.email && teacherData.city_id && teacherData.district_id &&
+      teacherData.school_id && teacherData.id_card_file &&
       teacherData.password && teacherData.confirm_password
 
     return (
@@ -430,59 +447,115 @@ export default function RegisterWizard() {
             fd.set('full_name', `${teacherData.last_name} ${teacherData.first_name} ${teacherData.father_name}`)
             fd.set('role', role)
             fd.set('grade_level', teacherData.grade_level)
+            fd.set('institution_name', teacherData.institution_name)
+            fd.set('city_id', teacherData.city_id)
+            fd.set('district_id', teacherData.district_id)
+            fd.set('school_id', teacherData.school_id)
 
             const result = await register(fd)
             if (result?.error) { setError(result.error); setLoading(false) }
           }}
           className="space-y-4"
         >
-          {/* ─── Sahə 1: Ad, Soyad ─── */}
+          {/* Ad, Soyad */}
           <div className="grid grid-cols-2 gap-3">
             <FormField label="ADINIZ *" icon="👤" value={teacherData.first_name} onChange={(v) => updateTeacher('first_name', v)} onBlur={() => teacherData.first_name && nextStep()} required />
             <FormField label="SOYADINIZ *" icon="👤" value={teacherData.last_name} onChange={(v) => updateTeacher('last_name', v)} onBlur={() => teacherData.last_name && nextStep()} required />
           </div>
 
-          {/* ─── Sahə 2: Ata adı ─── */}
+          {/* Ata adı */}
           {formProgress >= 1 && (
             <FormField label="ATA ADINIZ *" icon="👤" value={teacherData.father_name} onChange={(v) => updateTeacher('father_name', v)} onBlur={() => teacherData.father_name && nextStep()} required />
           )}
 
-          {/* ─── Sahə 3: Email ─── */}
+          {/* Email */}
           {formProgress >= 2 && (
             <FormField label="EMAIL *" icon="✉️" type="email" value={teacherData.email} onChange={(v) => updateTeacher('email', v)} onBlur={() => teacherData.email && nextStep()} hint="Şifrəni unutduğunuz təqdirdə bu emaildən istifadə edərək hesabınıza bərpa edə biləcəksiniz." required />
           )}
 
-          {/* ─── Sahə 4: Cins + Müəssisə ─── */}
+          {/* Cins + Müəssisə */}
           {formProgress >= 3 && (
             <div className="grid grid-cols-2 gap-3">
               <SelectField label="CİNS *" value={teacherData.gender} onChange={(v) => { updateTeacher('gender', v); nextStep() }} options={['Kişi', 'Qadın']} />
-              <SelectField label="MÜƏSSİSƏ *" value={teacherData.institution_type} onChange={(v) => { updateTeacher('institution_type', v); nextStep() }} options={['Özəl (kurs, bağça, lisey, repetitor)', 'Dövlət məktəbi', 'Universitet']} />
+              <SelectField label="MÜƏSSİSƏ *" value={teacherData.institution_type} onChange={(v) => { updateTeacher('institution_type', v); nextStep() }} options={['Dövlət məktəbi', 'Özəl (kurs, bağça, lisey, repetitor)', 'Universitet']} />
             </div>
           )}
 
-          {/* ─── Sahə 5: Müəssisənin adı ─── */}
+          {/* Şəhər + Rayon */}
           {formProgress >= 4 && (
-            <FormField label="MÜƏSSİSƏNİN ADI *" icon="🏢" value={teacherData.institution_name} onChange={(v) => updateTeacher('institution_name', v)} onBlur={() => teacherData.institution_name && nextStep()} placeholder="Nilay" required />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[10px] font-bold text-gray-700 mb-1 block uppercase tracking-wider">ŞƏHƏR *</label>
+                <select
+                  value={teacherData.city_id}
+                  onChange={(e) => {
+                    updateTeacher('city_id', e.target.value)
+                    updateTeacher('district_id', '')
+                    updateTeacher('school_id', '')
+                  }}
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 outline-none focus:border-blue-500"
+                >
+                  <option value="">Şəhər seçin</option>
+                  {cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-gray-700 mb-1 block uppercase tracking-wider">RAYON *</label>
+                <select
+                  value={teacherData.district_id}
+                  onChange={(e) => {
+                    updateTeacher('district_id', e.target.value)
+                    updateTeacher('school_id', '')
+                  }}
+                  disabled={!teacherData.city_id}
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 outline-none focus:border-blue-500 disabled:opacity-50"
+                >
+                  <option value="">Rayon seçin</option>
+                  {teacherDistricts.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                </select>
+              </div>
+            </div>
           )}
 
-          {/* ─── Sahə 6: Sinif + İndeks ─── */}
+          {/* Məktəb / Müəssisə */}
           {formProgress >= 5 && (
+            <div>
+              <label className="text-[10px] font-bold text-gray-700 mb-1 block uppercase tracking-wider">MƏKTƏB / MÜƏSSİSƏ *</label>
+              <select
+                value={teacherData.school_id}
+                onChange={(e) => {
+                  updateTeacher('school_id', e.target.value)
+                  const school = teacherSchools.find(s => String(s.id) === e.target.value)
+                  if (school) updateTeacher('institution_name', school.name)
+                  nextStep()
+                }}
+                disabled={!teacherData.district_id}
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 outline-none focus:border-blue-500 disabled:opacity-50"
+              >
+                <option value="">Məktəb seçin</option>
+                {teacherSchools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </select>
+            </div>
+          )}
+
+          {/* Sinif + İndeks */}
+          {formProgress >= 6 && (
             <div className="grid grid-cols-2 gap-3">
               <SelectField label="SİNİF *" value={teacherData.grade_level} onChange={(v) => { updateTeacher('grade_level', v); nextStep() }} options={['1', '2', '3', '4', '5', '6', '7', '8', '9']} display={(v) => `${v}-ci sinif`} />
               <SelectField label="SİNFİN İNDEKSİ *" value={teacherData.class_index} onChange={(v) => { updateTeacher('class_index', v); nextStep() }} options={['a', 'b', 'c', 'd', 'e']} />
             </div>
           )}
 
-          {/* ─── Sahə 7: Xarici dil + Bölmə ─── */}
-          {formProgress >= 6 && (
+          {/* Xarici dil + Bölmə */}
+          {formProgress >= 7 && (
             <div className="grid grid-cols-2 gap-3">
               <SelectField label="XARİCİ DİL *" value={teacherData.foreign_language} onChange={(v) => { updateTeacher('foreign_language', v); nextStep() }} options={['İngilis dili', 'Rus dili', 'Fransız dili', 'Alman dili']} />
               <SelectField label="BÖLMƏ *" value={teacherData.section} onChange={(v) => { updateTeacher('section', v); nextStep() }} options={['Azərbaycan bölməsi', 'Rus bölməsi']} />
             </div>
           )}
 
-          {/* ─── Sahə 8: Şəxsiyyət vəsiqəsi ─── */}
-          {formProgress >= 7 && (
+          {/* Şəxsiyyət vəsiqəsi */}
+          {formProgress >= 8 && (
             <FileField
               label="ŞƏXSİYYƏT VƏSİQƏSİNİN ÖN ÜZÜNÜN ŞƏKLİ *"
               file={teacherData.id_card_file}
@@ -490,8 +563,8 @@ export default function RegisterWizard() {
             />
           )}
 
-          {/* ─── Sahə 9: Şifrə ─── */}
-          {formProgress >= 8 && (
+          {/* Şifrə */}
+          {formProgress >= 9 && (
             <>
               <div className="grid grid-cols-2 gap-3">
                 <FormField label="ŞİFRƏ TƏYİN EDİN *" icon="🔒" type="password" value={teacherData.password} onChange={(v) => updateTeacher('password', v)} required />
@@ -508,7 +581,7 @@ export default function RegisterWizard() {
 
           {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>}
 
-          {allFilled && formProgress >= 8 && (
+          {allFilled && formProgress >= 9 && (
             <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition disabled:opacity-50">
               {loading ? 'Yaradılır...' : 'Qeydiyyatdan keç'}
             </button>
@@ -519,7 +592,7 @@ export default function RegisterWizard() {
   }
 
   // ═══════════════════════════════════════════════════════
-  // STEP 5: DİREKTOR FORMU (ADDIM-ADDIM)
+  // STEP 5: DİREKTOR FORMU (addım-addım)
   // ═══════════════════════════════════════════════════════
   if (step === 'director-form') {
     const allFilled =
@@ -556,29 +629,32 @@ export default function RegisterWizard() {
             fd.set('password', directorData.password)
             fd.set('full_name', `${directorData.last_name} ${directorData.first_name} ${directorData.father_name}`)
             fd.set('role', role)
+            fd.set('city_id', directorData.city_id)
+            fd.set('district_id', directorData.district_id)
+            fd.set('school_id', directorData.school_id)
 
             const result = await register(fd)
             if (result?.error) { setError(result.error); setLoading(false) }
           }}
           className="space-y-4"
         >
-          {/* ─── Sahə 1: Ad, Soyad ─── */}
+          {/* Ad, Soyad */}
           <div className="grid grid-cols-2 gap-3">
             <FormField label="ADINIZ *" icon="👤" value={directorData.first_name} onChange={(v) => updateDirector('first_name', v)} onBlur={() => directorData.first_name && nextStep()} required />
             <FormField label="SOYADINIZ *" icon="👤" value={directorData.last_name} onChange={(v) => updateDirector('last_name', v)} onBlur={() => directorData.last_name && nextStep()} required />
           </div>
 
-          {/* ─── Sahə 2: Ata adı ─── */}
+          {/* Ata adı */}
           {formProgress >= 1 && (
             <FormField label="ATA ADINIZ *" icon="👤" value={directorData.father_name} onChange={(v) => updateDirector('father_name', v)} onBlur={() => directorData.father_name && nextStep()} required />
           )}
 
-          {/* ─── Sahə 3: Email ─── */}
+          {/* Email */}
           {formProgress >= 2 && (
             <FormField label="EMAIL *" icon="✉️" type="email" value={directorData.email} onChange={(v) => updateDirector('email', v)} onBlur={() => directorData.email && nextStep()} hint="Rəsmi e-poçt ünvanı tövsiyə olunur" required />
           )}
 
-          {/* ─── Sahə 4: Cins + Vəzifə ─── */}
+          {/* Cins + Vəzifə */}
           {formProgress >= 3 && (
             <div className="grid grid-cols-2 gap-3">
               <SelectField label="CİNS *" value={directorData.gender} onChange={(v) => { updateDirector('gender', v); nextStep() }} options={['Kişi', 'Qadın']} />
@@ -586,12 +662,12 @@ export default function RegisterWizard() {
             </div>
           )}
 
-          {/* ─── Sahə 5: İş təcrübəsi ─── */}
+          {/* İş təcrübəsi */}
           {formProgress >= 4 && (
             <SelectField label="İŞ TƏCRÜBƏSİ (İL) *" value={directorData.experience_years} onChange={(v) => { updateDirector('experience_years', v); nextStep() }} options={['1', '2', '3', '5', '10', '15', '20+']} display={(v) => `${v} il`} />
           )}
 
-          {/* ─── Sahə 6: Şəhər + Rayon ─── */}
+          {/* Şəhər + Rayon */}
           {formProgress >= 5 && (
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -622,7 +698,7 @@ export default function RegisterWizard() {
             </div>
           )}
 
-          {/* ─── Sahə 7: Məktəb ─── */}
+          {/* Məktəb */}
           {formProgress >= 6 && (
             <div>
               <label className="text-[10px] font-bold text-gray-700 mb-1 block uppercase tracking-wider">MƏKTƏB / MÜƏSSİSƏ *</label>
@@ -638,7 +714,7 @@ export default function RegisterWizard() {
             </div>
           )}
 
-          {/* ─── Sahə 8: Şəxsiyyət vəsiqəsi ─── */}
+          {/* Şəxsiyyət vəsiqəsi */}
           {formProgress >= 7 && (
             <FileField
               label="ŞƏXSİYYƏT VƏSİQƏSİNİN ÖN ÜZÜNÜN ŞƏKLİ *"
@@ -647,7 +723,7 @@ export default function RegisterWizard() {
             />
           )}
 
-          {/* ─── Sahə 9: Şifrə ─── */}
+          {/* Şifrə */}
           {formProgress >= 8 && (
             <>
               <div className="grid grid-cols-2 gap-3">
@@ -688,6 +764,9 @@ export default function RegisterWizard() {
       fd.set('full_name', `${formData.last_name} ${formData.first_name} ${formData.father_name}`)
       fd.set('role', role)
       fd.set('grade_level', formData.grade_level)
+      fd.set('city_id', formData.city_id)
+      fd.set('district_id', formData.district_id)
+      fd.set('school_id', formData.school_id)
       const result = await register(fd)
       if (result?.error) { setError(result.error); setLoading(false) }
     }
@@ -703,7 +782,7 @@ export default function RegisterWizard() {
       { label: 'Ata adı', value: formData.father_name, icon: '👤' },
       { label: 'Email', value: formData.email, icon: '✉️' },
       { label: 'Cins', value: formData.gender, icon: '👥' },
-      { label: 'Şəhər / rayon', value: cityName, icon: '📍' },
+      { label: 'Şəhər', value: cityName, icon: '📍' },
       { label: 'Bölmə', value: 'Azərbaycan bölməsi', icon: '📚' },
       { label: 'Sinif', value: `${formData.grade_level}-ci sinif - ${formData.class_index}`, icon: '🎓' },
       { label: 'Xarici dil', value: formData.foreign_language, icon: '🌍' },
