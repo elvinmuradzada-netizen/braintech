@@ -31,7 +31,7 @@ export default async function EditExamPage({
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
-        <Link href="/dashboard/exams" className="text-blue-600 hover:underline mb-4 inline-block">
+        <Link href="/dashboard/exams" className="text-indigo-600 hover:underline mb-4 inline-block">
           ← İmtahanlar
         </Link>
 
@@ -47,6 +47,7 @@ export default async function EditExamPage({
           </div>
         </div>
 
+        {/* Mövcud suallar */}
         <div className="bg-white rounded-2xl shadow p-6 mb-6">
           <h2 className="text-xl font-semibold mb-4">
             Suallar ({examQuestions?.length || 0})
@@ -54,12 +55,12 @@ export default async function EditExamPage({
 
           {examQuestions && examQuestions.length > 0 ? (
             <div className="space-y-3">
-              {examQuestions.map((eq, idx) => (
+              {examQuestions.map((eq: any, idx: number) => (
                 <div key={eq.question_id} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <p className="font-medium">
-                        <span className="text-blue-600">#{idx + 1}</span>{' '}
+                        <span className="text-indigo-600">#{idx + 1}</span>{' '}
                         {eq.questions.body}
                       </p>
                       {eq.questions.options && eq.questions.options.length > 0 && (
@@ -87,7 +88,26 @@ export default async function EditExamPage({
           )}
         </div>
 
-        <QuestionForm examId={exam.id} gradeLevel={exam.grade_level} />
+        {/* Professional sual düyməsi */}
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 text-white text-center shadow-lg mb-6">
+          <p className="text-sm opacity-90 mb-3">
+            ✨ 8 fərqli sual tipi ilə professional suallar yaradın
+          </p>
+          <Link
+            href={`/dashboard/exams/${exam.id}/questions/new`}
+            className="inline-block bg-white text-indigo-700 px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition shadow-lg"
+          >
+            ➕ Yeni sual əlavə et
+          </Link>
+        </div>
+
+        {/* Sadə sual formu (köhnə) */}
+        <div className="bg-white rounded-2xl shadow p-6">
+          <h2 className="text-lg font-semibold mb-4 text-gray-700">
+            ⚡ Sürətli sual əlavə et
+          </h2>
+          <QuestionForm examId={exam.id} gradeLevel={exam.grade_level} />
+        </div>
       </div>
     </div>
   )

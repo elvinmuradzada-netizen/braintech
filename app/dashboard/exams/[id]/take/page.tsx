@@ -29,7 +29,7 @@ export default async function TakeExamPage({
           <h1 className="text-xl font-bold mb-2">İmtahan yayımlanmayıb</h1>
           <p className="text-gray-500 mb-4">Bu imtahana hələ başlaya bilməzsiniz.</p>
           <Link href={`/dashboard/exams/${exam.id}`}
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
+            className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg">
             ← Geri qayıt
           </Link>
         </div>
@@ -37,10 +37,10 @@ export default async function TakeExamPage({
     )
   }
 
-  // Sualları götür
+  // Sualları götür — BÜTÜN sahələr
   const { data: examQuestions } = await supabase
     .from('exam_questions')
-    .select('question_id, points, order_index, questions(id, type, body, options)')
+    .select('question_id, points, order_index, questions(id, type, body, options, correct_answer, metadata, media_url, difficulty, explanation)')
     .eq('exam_id', id)
     .order('order_index')
 
@@ -52,7 +52,7 @@ export default async function TakeExamPage({
           <h1 className="text-xl font-bold mb-2">Suallar yoxdur</h1>
           <p className="text-gray-500 mb-4">Bu imtahanda hələ sual yoxdur.</p>
           <Link href={`/dashboard/exams/${exam.id}`}
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
+            className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg">
             ← Geri qayıt
           </Link>
         </div>
@@ -60,7 +60,7 @@ export default async function TakeExamPage({
     )
   }
 
-  // Sualları formatla
+  // Sualları formatla — bütün sahələr ilə
   const questions = examQuestions
     .filter((eq: any) => eq.questions)
     .map((eq: any) => ({
@@ -68,6 +68,11 @@ export default async function TakeExamPage({
       type: eq.questions.type,
       body: eq.questions.body,
       options: eq.questions.options || [],
+      correct_answer: eq.questions.correct_answer,
+      metadata: eq.questions.metadata || {},
+      media_url: eq.questions.media_url,
+      difficulty: eq.questions.difficulty,
+      explanation: eq.questions.explanation,
       points: eq.points,
     }))
 
@@ -90,7 +95,7 @@ export default async function TakeExamPage({
           <h1 className="text-xl font-bold mb-2">Xəta baş verdi</h1>
           <p className="text-gray-500 mb-4">{attemptError?.message}</p>
           <Link href={`/dashboard/exams/${exam.id}`}
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
+            className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg">
             ← Geri qayıt
           </Link>
         </div>

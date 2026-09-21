@@ -35,6 +35,20 @@ export default async function ClassDetailPage({
     .select('*, profiles:student_id(id, full_name, grade_level, class_index)')
     .eq('class_id', id)
 
+  // Şagirdlərin cəhdləri (statistika üçün)
+  const studentIds = (classStudents || []).map((s: any) => s.student_id)
+  let studentAttempts: any[] = []
+
+  if (studentIds.length > 0) {
+    const { data } = await supabase
+      .from('attempts')
+      .select('*, exams(id, title, subjects(name, icon))')
+      .in('student_id', studentIds)
+      .eq('status', 'completed')
+      .order('finished_at', { ascending: false })
+    studentAttempts = data || []
+  }
+
   return (
     <div className="max-w-6xl mx-auto">
       <Link href="/dashboard/classes" className="text-indigo-600 hover:underline mb-4 inline-block text-sm">
@@ -44,6 +58,7 @@ export default async function ClassDetailPage({
       <ClassDetail
         cls={cls}
         classStudents={classStudents || []}
+        studentAttempts={studentAttempts}
         isDirector={isDirector}
       />
     </div>
